@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firestore Mock Content Forms</title>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .form-container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+    }
+    label {
+      font-weight: bold;
+    }
+    input, textarea, button {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #4caf50;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #firebaseStatus {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #statusIndicator {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: red;
+    }
+    #statusText {
+      margin-left: 10px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Firestore Content Submission</h1>
+
+<!-- Firebase Connection Status -->
+<div id="firebaseStatus">
+  <span id="statusIndicator"></span>
+  <span id="statusText">Firebase not connected</span>
+</div>
+
+<!-- Article Submission Form -->
+<div class="form-container" id="articleForm">
+  <h2>Submit an Article</h2>
+  <form>
+    <label for="articleTitle">Title:</label>
+    <input type="text" id="articleTitle" placeholder="Enter article title" required>
+
+    <label for="articleContent">Content:</label>
+    <textarea id="articleContent" placeholder="Enter article content" rows="4" required></textarea>
+
+    <label for="articleImageUrl">Image URL:</label>
+    <input type="url" id="articleImageUrl" placeholder="Enter article image URL" required>
+
+    <label for="articleAuthor">Author:</label>
+    <input type="text" id="articleAuthor" placeholder="Enter author name" required>
+
+    <label for="articleTags">Tags (comma-separated):</label>
+    <input type="text" id="articleTags" placeholder="e.g., space, technology, future" required>
+
+    <button type="button" onclick="submitContent('article')">Submit Article</button>
+  </form>
+</div>
+
+<!-- Video Submission Form -->
+<div class="form-container" id="videoForm">
+  <h2>Submit a Video</h2>
+  <form>
+    <label for="videoTitle">Title:</label>
+    <input type="text" id="videoTitle" placeholder="Enter video title" required>
+
+    <label for="videoContent">Content:</label>
+    <textarea id="videoContent" placeholder="Enter video description" rows="4" required></textarea>
+
+    <label for="videoUrl">Video URL:</label>
+    <input type="url" id="videoUrl" placeholder="Enter video URL" required>
+
+    <label for="videoImageUrl">Thumbnail URL:</label>
+    <input type="url" id="videoImageUrl" placeholder="Enter thumbnail URL" required>
+
+    <label for="videoAuthor">Author:</label>
+    <input type="text" id="videoAuthor" placeholder="Enter author name" required>
+
+    <label for="videoTags">Tags (comma-separated):</label>
+    <input type="text" id="videoTags" placeholder="e.g., spacex, launch, starship" required>
+
+    <button type="button" onclick="submitContent('video')">Submit Video</button>
+  </form>
+</div>
+
+<!-- Image Submission Form -->
+<div class="form-container" id="imageForm">
+  <h2>Submit an Image</h2>
+  <form>
+    <label for="imageTitle">Title:</label>
+    <input type="text" id="imageTitle" placeholder="Enter image title" required>
+
+    <label for="imageUrl">Image URL:</label>
+    <input type="url" id="imageUrl" placeholder="Enter image URL" required>
+
+    <label for="imageAuthor">Author:</label>
+    <input type="text" id="imageAuthor" placeholder="Enter author name" required>
+
+    <label for="imageTags">Tags (comma-separated):</label>
+    <input type="text" id="imageTags" placeholder="e.g., astronomy, nebula, webb" required>
+
+    <button type="button" onclick="submitContent('image')">Submit Image</button>
+  </form>
+</div>
+
+<!-- Song Submission Form -->
+<div class="form-container" id="songForm">
+  <h2>Submit a Song</h2>
+  <form>
+    <label for="songTitle">Title:</label>
+    <input type="text" id="songTitle" placeholder="Enter song title" required>
+
+    <label for="audioUrl">Audio URL:</label>
+    <input type="url" id="audioUrl" placeholder="Enter audio URL" required>
+
+    <label for="songImageUrl">Image URL:</label>
+    <input type="url" id="songImageUrl" placeholder="Enter thumbnail URL" required>
+
+    <label for="songAuthor">Author:</label>
+    <input type="text" id="songAuthor" placeholder="Enter author name" required>
+
+    <label for="songTags">Tags (comma-separated):</label>
+    <input type="text" id="songTags" placeholder="e.g., music, space, ambient" required>
+
+    <button type="button" onclick="submitContent('song')">Submit Song</button>
+  </form>
+</div>
+
+<!-- Text Submission Form -->
+<div class="form-container" id="textForm">
+  <h2>Submit Text</h2>
+  <form>
+    <label for="textContent">Content:</label>
+    <textarea id="textContent" placeholder="Enter your text content" rows="4" required></textarea>
+
+    <label for="textAuthor">Author:</label>
+    <input type="text" id="textAuthor" placeholder="Enter author name" required>
+
+    <label for="textTags">Tags (comma-separated):</label>
+    <input type="text" id="textTags" placeholder="e.g., astronomy, meteors, nightsky" required>
+
+    <button type="button" onclick="submitContent('text')">Submit Text</button>
+  </form>
+</div>
+
+<script>
+  // Firebase configuration
+  const firebaseConfig = {
+  apiKey: "AIzaSyAQ3Z-aTziCEBlHFZc69yGirltDwaFVpOQ",
+  authDomain: "spacecard-contents.firebaseapp.com",
+  projectId: "spacecard-contents",
+  storageBucket: "spacecard-contents.firebasestorage.app",
+  messagingSenderId: "534493604646",
+  appId: "1:534493604646:web:0f77420af6280fa994afe7"
+};
+
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  document.getElementById('statusIndicator').style.backgroundColor = 'green'; // Set status light to green
+  document.getElementById('statusText').innerText = 'Firebase connected successfully';
+
+  // Submit Content function
+  async function submitContent(type) {
+    const formData = {
+      id: `${type}_${Date.now()}`,
+      type,
+      publishedAt: new Date().toISOString(),
+      likes: 0,
+    };
+
+    switch (type) {
+      case 'article':
+        formData.title = document.getElementById('articleTitle').value;
+        formData.content = document.getElementById('articleContent').value;
+        formData.imageUrl = document.getElementById('articleImageUrl').value;
+        formData.author = document.getElementById('articleAuthor').value;
+        formData.tags = document.getElementById('articleTags').value.split(',').map(tag => tag.trim());
+        break;
+      case 'video':
+        formData.title = document.getElementById('videoTitle').value;
+        formData.content = document.getElementById('videoContent').value;
+        formData.videoUrl = document.getElementById('videoUrl').value;
+        formData.imageUrl = document.getElementById('videoImageUrl').value;
+        formData.author = document.getElementById('videoAuthor').value;
+        formData.tags = document.getElementById('videoTags').value.split(',').map(tag => tag.trim());
+        break;
+      case 'image':
+        formData.title = document.getElementById('imageTitle').value;
+        formData.imageUrl = document.getElementById('imageUrl').value;
+        formData.author = document.getElementById('imageAuthor').value;
+        formData.tags = document.getElementById('imageTags').value.split(',').map(tag => tag.trim());
+        break;
+      case 'song':
+        formData.title = document.getElementById('songTitle').value;
+        formData.audioUrl = document.getElementById('audioUrl').value;
+        formData.imageUrl = document.getElementById('songImageUrl').value;
+        formData.author = document.getElementById('songAuthor').value;
+        formData.tags = document.getElementById('songTags').value.split(',').map(tag => tag.trim());
+        break;
+      case 'text':
+        formData.content = document.getElementById('textContent').value;
+        formData.author = document.getElementById('textAuthor').value;
+        formData.tags = document.getElementById('textTags').value.split(',').map(tag => tag.trim());
+        break;
+    }
+
+    try {
+      await db.collection('mockMixContent').add(formData);
+      alert(`${type.charAt(0).toUpperCase() + type.slice(1)} submitted successfully!`);
+    } catch (error) {
+      console.error("Error submitting content:", error);
+      alert("Error submitting content. Please try again.");
+    }
+  }
+</script>
+
+</body>
+</html>
